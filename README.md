@@ -67,14 +67,14 @@ roslaunch agent_ros_mobile agent_ros_mobile.launch
     实现： a. python recordMobile.py  # get image from '/camera/rgb/image_raw' topic.
           b. python runMobile.py  #
 
-2. RL agent (mobile robot).(tested, ok!)
-cd /home/yuchen/catkin_ws/src/Navi_DeepRL/agent
-python agent_mobile.py
-
-3. DRQN (tested, ok!)
+2. DRQN (tested, ok!)
 cd /home/yuchen/catkin_ws/src/Navi_DeepRL
 python Navi_deepRL_training.py
-
+    实现： a. RL agent (mobile robot).(tested, ok!)
+            cd /home/yuchen/catkin_ws/src/Navi_DeepRL/agent
+            python agent_mobile.py
+          b. Q-network
+            ./algorithm
 ```
 
 
