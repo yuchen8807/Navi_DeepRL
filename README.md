@@ -23,9 +23,18 @@ b. other dependences.
 
 **Tensorflow**
 
+### 3. file introduction
+**agent** file: define RL agent
+
+**agent_ros_2_mobile**　file: use to communicate RL agent with mobile robot.
+
+**algorithm** file: define DRQN algorithm
+
+**utility** file: some useful function.
 
 
-### 3. turlebot simulation (tested, ok!)
+
+### 4. turlebot simulation (tested, ok!)
 Rviz
 
 ```
@@ -50,7 +59,7 @@ Keyboard control.
 roslaunch turtlebot_teleop keyboard_teleop.launch
 
 ```
-### 4. turtlebot (real-robot)
+### 5. turtlebot (real-robot)
 ```
 1. 小梁
 reference:
@@ -59,7 +68,7 @@ b. http://learn.turtlebot.com/
 
 ```
 
-### 5. Deep recurrent Q-learning (DRQN)
+### 6. Deep recurrent Q-learning (DRQN)
 
 ```
 1. agent_ros_2_mobile (tested, ok!)
@@ -78,7 +87,7 @@ python Navi_deepRL_training.py
 ```
 
 
-### 6. State learning (???)
+### 7. State learning (???)
 
 
-### 7. ???
+### 8. ???

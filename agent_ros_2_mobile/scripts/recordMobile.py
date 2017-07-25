@@ -41,6 +41,8 @@ if __name__ == '__main__':
         #1. get img and publish to RL
         #print('tmp_image: ', tmp_image)
         tmp_DataRequest = DataRequest()
+        #compress image:
+        #compressed_img = process_image(tmp_image)
         tmp_DataRequest.imgState = np.ones(21168) # for testing
         tmp_DataRequest.rState = np.ones(2)
         image_pub.publish(tmp_DataRequest)
