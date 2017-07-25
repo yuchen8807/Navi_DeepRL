@@ -65,6 +65,8 @@ roslaunch turtlebot_teleop keyboard_teleop.launch
 reference:
 a: http://wiki.ros.org/turtlebot/Tutorials
 b. http://learn.turtlebot.com/
+c. start robot: roslaunch turtlebot_bringup minimal.launch
+d. use keyboart control: roslaunch turtlebot_teleop keyboard_teleop.launch
 
 ```
 
