@@ -67,6 +67,10 @@ a: http://wiki.ros.org/turtlebot/Tutorials
 b. http://learn.turtlebot.com/
 c. start robot: roslaunch turtlebot_bringup minimal.launch
 d. use keyboart control: roslaunch turtlebot_teleop keyboard_teleop.launch
+e. use openni: roslaunch openni_launch openni.launch
+f. test camera: rosrun image_view image_view image:=/camera/rgb/image_color
+                rosrun image_view image_view image:=/camera/depth/image
+                
 
 ```
 
