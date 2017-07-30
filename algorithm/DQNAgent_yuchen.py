@@ -226,6 +226,8 @@ class DQNAgent:
         eval_count = 0
 
         state = env.reset()
+        state = np.asarray(numpy.fromstring(state,dtype=numpy.uint8))
+        print('test_state：'，　tf.shape(state))
         burn_in = True
         idx_episode = 1
         episode_loss = .0
@@ -234,7 +236,7 @@ class DQNAgent:
         episode_raw_reward = .0
         episode_target_value = .0
         #for t in range(self.num_burn_in + num_iterations):
-        for t in range(20): #for testing
+        for t in range(10): #for testing
             action_state = self.history_processor.process_state_for_network(
                 self.atari_processor.process_state_for_network(state))
             policy_type = "UniformRandomPolicy" if burn_in else "LinearDecayGreedyEpsilonPolicy"
@@ -242,6 +244,8 @@ class DQNAgent:
             processed_state = self.atari_processor.process_state_for_memory(state) #image convert to uint8.
 
             state, reward, done, info = env.step(action)
+            state = np.copy(np.asarray(state))
+
 
             processed_next_state = self.atari_processor.process_state_for_network(state)
             action_next_state = np.dstack((action_state, processed_next_state))

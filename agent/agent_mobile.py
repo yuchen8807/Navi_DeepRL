@@ -117,10 +117,9 @@ if __name__ == '__main__':
     rospy.sleep(1)
     tmp_imgState, tmp_rState= AgentMobile_obj.get_data()
     print('test-data:',tmp_rState )
-
+    num_actions = 4
     for i in xrange(10):
-        num_actions = 4
-        np.random.randint(0, num_actions)
+        action = np.random.randint(0, num_actions)
         AgentMobile_obj.step(action)
         print(i, 'control command:', action)
         rospy.sleep(0.5)
