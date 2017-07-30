@@ -16,9 +16,6 @@ from agent_ros_mobile.msg import DataRequest
 from preprocessors import AtariPreprocessor
 
 global tmp_image
-def process_image(arg):
-    '''compress the raw image for RL'''
-    pass
 
 def image_callback(msg):
     w = msg.width
@@ -43,8 +40,10 @@ if __name__ == '__main__':
         #print('tmp_image: ', tmp_image)
         tmp_DataRequest = DataRequest()
         #compress image:
-        compressed_img = imageProcess_obj.process_state_for_network(tmp_image)
-        tmp_DataRequest.imgState = np.ones(21168) # for testing
+        #compressed_img = imageProcess_obj.process_state_for_network(tmp_image)
+        global tmp_image
+        #tmp_DataRequest.imgState = np.ones(21168) # for testing
+        tmp_DataRequest.imgState = tmp_image
         tmp_DataRequest.rState = np.ones(2)
         image_pub.publish(tmp_DataRequest)
 
