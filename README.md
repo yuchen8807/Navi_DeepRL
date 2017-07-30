@@ -15,7 +15,6 @@ Pixel state: （小梁和唐宋确定下！）  raw image --> processed imgState
 Reward: r = -2 (collision ), r = 0.01 (O.W)
 
 
-
 ### 2. install some dependences.
 1. install [turtlebot source](http://wiki.ros.org/turtlebot/Tutorials/indigo/Turtlebot%20Installation#turtlebot.2BAC8-Tutorials.2BAC8-indigo.2BAC8-Source_Installation). use 'Source_Installation'.
 
@@ -78,7 +77,7 @@ roslaunch agent_ros_mobile agent_ros_mobile.launch
 
 2. DRQN (tested, ok!)
 cd /home/yuchen/catkin_ws/src/Navi_DeepRL
-python Navi_deepRL_training.py
+python Navi_deepRL.py
     实现： a. RL agent (mobile robot).(tested, ok!)
             cd /home/yuchen/catkin_ws/src/Navi_DeepRL/agent
             python agent_mobile.py

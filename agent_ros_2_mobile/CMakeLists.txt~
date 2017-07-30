@@ -11,16 +11,9 @@ find_package(catkin REQUIRED COMPONENTS
    geometry_msgs
    trajectory_msgs
    control_msgs
-   moveit_msgs
-   actionlib_msgs
-   actionlib
    tf
    tf_conversions
    tf2_bullet
-
-   moveit_core
-   moveit_ros_planning
-   moveit_ros_planning_interface
    pluginlib
    cmake_modules
    geometric_shapes
@@ -53,11 +46,6 @@ catkin_package(
      geometry_msgs
      trajectory_msgs
      control_msgs
-     actionlib_msgs
-     actionlib
-     ros_fri_msgs
-     moveit_ros_planning_interface
-     moveit_core
      interactive_markers
 #  DEPENDS system_lib
 )

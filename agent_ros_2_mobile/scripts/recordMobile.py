@@ -13,9 +13,9 @@ import cv2
 import cv_bridge
 import sensor_msgs.msg
 from agent_ros_mobile.msg import DataRequest
+from preprocessors import AtariPreprocessor
 
 global tmp_image
-
 def process_image(arg):
     '''compress the raw image for RL'''
     pass
@@ -37,12 +37,13 @@ if __name__ == '__main__':
     rospy.loginfo('initialized')
     rospy.sleep(0.5) # wait for topic
     #rospy.spinOnce()
+    imageProcess_obj = AtariPreprocessor()
     while (True):
         #1. get img and publish to RL
         #print('tmp_image: ', tmp_image)
         tmp_DataRequest = DataRequest()
         #compress image:
-        #compressed_img = process_image(tmp_image)
+        compressed_img = imageProcess_obj.process_state_for_network(tmp_image)
         tmp_DataRequest.imgState = np.ones(21168) # for testing
         tmp_DataRequest.rState = np.ones(2)
         image_pub.publish(tmp_DataRequest)
