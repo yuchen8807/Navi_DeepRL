@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding=utf-8
+
 ''' Tensorflow implemente DQN.
 
 yuchen
@@ -227,14 +230,6 @@ class DQNAgent:
         eval_count = 0
 
         state = env.reset()
-<<<<<<< HEAD
-        print('test', state)
-        print('test2', type(state))
-
-=======
-        state = np.asarray(numpy.fromstring(state,dtype=numpy.uint8))
-        print('test_state：'，　tf.shape(state))
->>>>>>> 132a2008d85b4a1cb187f30a3d3123db970f3829
         burn_in = True
         idx_episode = 1
         episode_loss = .0
@@ -243,11 +238,7 @@ class DQNAgent:
         episode_raw_reward = .0
         episode_target_value = .0
         #for t in range(self.num_burn_in + num_iterations):
-<<<<<<< HEAD
         for t in range(5): #for testing
-=======
-        for t in range(10): #for testing
->>>>>>> 132a2008d85b4a1cb187f30a3d3123db970f3829
             action_state = self.history_processor.process_state_for_network(
                 self.atari_processor.process_state_for_network(state))
             policy_type = "UniformRandomPolicy" if burn_in else "LinearDecayGreedyEpsilonPolicy"
@@ -255,13 +246,8 @@ class DQNAgent:
             processed_state = self.atari_processor.process_state_for_memory(state) #image convert to uint8.
 
             state, reward, done, info = env.step(action)
-<<<<<<< HEAD
             time.sleep(1)
-=======
             state = np.copy(np.asarray(state))
-
->>>>>>> 132a2008d85b4a1cb187f30a3d3123db970f3829
-
             processed_next_state = self.atari_processor.process_state_for_network(state)
             action_next_state = np.dstack((action_state, processed_next_state))
             action_next_state = action_next_state[:, :, 1:] # delect the first state, then from 1 start.
@@ -335,9 +321,9 @@ class DQNAgent:
                         rewards = self.memory.rewards.tolist(),
                         terminals = self.memory.terminals.tolist() )
         file_memory.write(str(memoryResults))
-        #time.sleep(0.5)
-        file_memory.close()
         '''
+        #time.sleep(0.5)
+        #file_memory.close()
     #end of fit method.
 
     def save_model(self, idx_episode):

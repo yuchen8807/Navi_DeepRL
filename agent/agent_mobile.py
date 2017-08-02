@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 '''
 mobile robot for a navigation senario.
@@ -15,7 +15,7 @@ import math
 from math import radians
 import threading
 # tip: from package_name.msg  import ; and package_name != file_name
-from agent_ros_mobile.msg import Command, DataRequest
+from agent_ros_mobile.msg import Command, DataRequest, collisionState
 from utility import DataFiles
 import sensor_msgs.msg
 from cv_bridge import CvBridge, CvBridgeError
@@ -40,13 +40,17 @@ class AgentMobile():
         #subscriber
         self.sample_result_sub = rospy.Subscriber('/yuchen_controller_report', DataRequest, self.sample_callback)
         self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",sensor_msgs.msg.Image, self.sample_callback)
-
+        self.collision_sub = rospy.Subscriber('yuchen_collision', collisionState, self.collisionState_callback)
     #end of init_pubs_subs method
     def sample_callback(self, msg):
         '''get sample under data-request'''
         global curr_sample_imgState
         curr_sample_imgState = msg # imgState
     # end of sample_callback method
+    def collisionState_callback(self, msg):
+        global curr_collisionState
+        curr_collisionState = msg.collision
+    #end of collisionState_callback method
 
     def get_data(self):
         global curr_sample_imgState
@@ -101,10 +105,14 @@ class AgentMobile():
         reward = 0.01
         '''
         collision_flag = collisionDetection()
+        target_flag = False
         if collision_flag == True:
             reward = -0.99
+        elif target_flag == True:
+            reward = 5
         else:
             reward = 0.005
+
         '''
         done = False
         info = ''
@@ -113,7 +121,6 @@ class AgentMobile():
 
 ''' test'''
 if __name__ == '__main__':
-<<<<<<< HEAD
     '''
     for i in xrange(10):
         num_actions = 4
@@ -125,7 +132,6 @@ if __name__ == '__main__':
             action = 2
         elif i == 7:
             action = 3
-=======
     AgentMobile_obj = AgentMobile()
     AgentMobile_obj.reset()
     rospy.sleep(1)
@@ -134,7 +140,6 @@ if __name__ == '__main__':
     num_actions = 4
     for i in xrange(10):
         action = np.random.randint(0, num_actions)
->>>>>>> 132a2008d85b4a1cb187f30a3d3123db970f3829
         AgentMobile_obj.step(action)
         print(i, 'control command:', action)
         rospy.sleep(0.5)

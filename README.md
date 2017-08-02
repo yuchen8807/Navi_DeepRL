@@ -97,6 +97,8 @@ python Navi_deepRL.py
 3. Collect samples
 cd /home/shuang/catkin_ws/src/Navi_DeepRL
 python collectSample.py
+and
+python restoreSample.py
 ```
 
 

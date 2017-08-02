@@ -7,9 +7,8 @@ yuchen
 import argparse
 import os
 import rospy
-import rospy
 import tensorflow as tf
-from algorithm.DQNAgent_yuchen import DQNAgent
+#from algorithm.DQNAgent_yuchen import DQNAgent
 from agent.agent_mobile import AgentMobile
 from algorithm.core import ReplayMemory
 from algorithm.preprocessors import *
@@ -79,7 +78,7 @@ if __name__=="__main__":
             #print('current key:', key)
             if key in actions.keys():
                 action = actions[key]
-                print('current action:', action)
+                #print('current action:', action)
                 processed_state = atari_processor.process_state_for_memory(state)
                 state, reward, done, info = AgentMobile_obj.step(action)
                 rospy.sleep(0.5)

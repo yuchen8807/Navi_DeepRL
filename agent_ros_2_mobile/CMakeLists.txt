@@ -29,6 +29,7 @@ add_message_files(
    FILES
    Command.msg
    DataRequest.msg
+   collisionState.msg
 )
 
 generate_messages(
