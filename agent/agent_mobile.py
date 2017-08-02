@@ -17,10 +17,11 @@ import threading
 # tip: from package_name.msg  import ; and package_name != file_name
 from agent_ros_mobile.msg import Command, DataRequest
 from utility import DataFiles
-
+import sensor_msgs.msg
+from cv_bridge import CvBridge, CvBridgeError
 # global variable
-curr_sample_imgState = np.zeros(21168)*np.nan #global variables: for testing
-curr_sample_rState = np.zeros(6)*np.nan #global variables: Temporary save Sample
+#curr_sample_imgState = np.zeros(21168)*np.nan #global variables: for testing
+#curr_sample_rState = np.zeros(6)*np.nan #global variables: Temporary save Sample
 class AgentMobile():
     """docstring for a AgentMobile (turtlebot)."""
     def __init__(self):
@@ -28,6 +29,7 @@ class AgentMobile():
         rospy.init_node('agent_mobile_node')
         self.thread_pubsub = threading.Thread(target=self.init_pubs_subs())
         self.thread_pubsub.start()
+        self.bridge = CvBridge()
     #end of init method.
 
     def init_pubs_subs(self):
@@ -37,21 +39,20 @@ class AgentMobile():
         #self.data_request_pub = rospy.Publisher('/yuchen_controller_data_request', DataRequest, queue_size=1000)
         #subscriber
         self.sample_result_sub = rospy.Subscriber('/yuchen_controller_report', DataRequest, self.sample_callback)
+        self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",sensor_msgs.msg.Image, self.sample_callback)
+
     #end of init_pubs_subs method
     def sample_callback(self, msg):
         '''get sample under data-request'''
-        global curr_sample_imgState, curr_sample_rState
-        curr_sample_imgState = msg.imgState # imgState
-        curr_sample_rState = msg.rState # robot state: linear + angle velocity
+        global curr_sample_imgState
+        curr_sample_imgState = msg # imgState
     # end of sample_callback method
 
     def get_data(self):
-        global curr_sample_imgState, curr_sample_rState
-        robot_linearVelocity = curr_sample_rState[0]
-        robot_angleVelocity = curr_sample_rState[1]
-        rState = np.array([robot_linearVelocity, robot_angleVelocity])
-        imgState = curr_sample_imgState
-        return imgState, rState
+        global curr_sample_imgState
+        tmp_image = self.bridge.imgmsg_to_cv2(curr_sample_imgState, "rgb8")
+        imgState = np.asarray(tmp_image)
+        return imgState
     #end of get_data method
 
     def reset(self, reset_vw= None):
@@ -62,9 +63,9 @@ class AgentMobile():
         reset_command.angle = 0
 
         self.action_pub.publish(reset_command)
-        print('--------RL_agent: send reset_arm command')
+        #print('--------RL_agent: send reset_arm command')
         rospy.sleep(0.2)
-        tmp_imgState, tmp_rState = self.get_data()
+        tmp_imgState = self.get_data()
         return tmp_imgState
     #end of reset_arm method
 
@@ -73,17 +74,17 @@ class AgentMobile():
         # <<<<<<<<<<<<<<<<<<<<<<<<<
         #action: 0-go (linear = 0.3, angle = 0), 1-turn left (0, -1), 2-turn right (0,-1), 3-slow(0.1, 0)
         # <<<<<<<<<<<<<<<<<<<<<<<<<
-        if action == 0:
-            linear = 0.3
-            angle = 0
-        elif action == 1:
-            linear = 0
-            angle = -1
-        elif action == 2:
-            linear = 0
-            angle = 1
-        else:
+        if action == 0: #go
             linear = 0.1
+            angle = 0
+        elif action == 1:# turn left
+            linear = 0.05
+            angle = 1
+        elif action == 2:#turn right
+            linear = 0.05
+            angle = -1
+        else:
+            linear = 0.05#slow
             angle = 0
 
         # command control
@@ -94,7 +95,7 @@ class AgentMobile():
 
         # get next_state
         rospy.sleep(0.1)
-        next_imgState, next_rState = self.get_data()
+        next_imgState = self.get_data()
 
         # compute reward.
         reward = 0.01
@@ -112,6 +113,19 @@ class AgentMobile():
 
 ''' test'''
 if __name__ == '__main__':
+<<<<<<< HEAD
+    '''
+    for i in xrange(10):
+        num_actions = 4
+        #action = np.random.randint(0, num_actions)
+        action = 0
+        if i==3:
+            action = 1
+        elif i==5:
+            action = 2
+        elif i == 7:
+            action = 3
+=======
     AgentMobile_obj = AgentMobile()
     AgentMobile_obj.reset()
     rospy.sleep(1)
@@ -120,8 +134,9 @@ if __name__ == '__main__':
     num_actions = 4
     for i in xrange(10):
         action = np.random.randint(0, num_actions)
+>>>>>>> 132a2008d85b4a1cb187f30a3d3123db970f3829
         AgentMobile_obj.step(action)
         print(i, 'control command:', action)
         rospy.sleep(0.5)
-
+    '''
     rospy.spin()

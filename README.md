@@ -86,13 +86,17 @@ roslaunch agent_ros_mobile agent_ros_mobile.launch
           b. python runMobile.py  #
 
 2. DRQN (tested, ok!)
-cd /home/yuchen/catkin_ws/src/Navi_DeepRL
+cd /home/shuang/catkin_ws/src/Navi_DeepRL
 python Navi_deepRL.py
     实现： a. RL agent (mobile robot).(tested, ok!)
             cd /home/yuchen/catkin_ws/src/Navi_DeepRL/agent
             python agent_mobile.py
           b. Q-network
             ./algorithm
+
+3. Collect samples
+cd /home/shuang/catkin_ws/src/Navi_DeepRL
+python collectSample.py
 ```
 
 

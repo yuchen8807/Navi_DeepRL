@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <node name="runMobile" pkg="agent_ros_mobile" type="runMobile.py" respawn="false" output="screen"/>
+  <!---
   <node name="recordMobile" pkg="agent_ros_mobile" type="recordMobile.py" respawn="false" output="screen"/>
+  -->
 </launch>
