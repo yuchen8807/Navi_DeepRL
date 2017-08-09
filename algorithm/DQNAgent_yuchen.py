@@ -229,7 +229,8 @@ class DQNAgent:
         self.save_model(0)
         eval_count = 0
 
-        state = env.reset()
+        state, _ = env.reset()
+        print('test:', state)
         burn_in = True
         idx_episode = 1
         episode_loss = .0
