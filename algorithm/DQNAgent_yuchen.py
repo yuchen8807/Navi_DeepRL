@@ -23,25 +23,7 @@ import time
 
 """Main DQN agent."""
 class DQNAgent:
-    """Class implementing DQN.
-    Parameters
-    ----------
-    q_network: [keras.models.Model] Your Q-network model.
-    preprocessor: [deeprl_hw2.core.Preprocessor]The preprocessor class. See the associated classes for more
-      details.
-    memory: [deeprl_hw2.core.Memory] Your replay memory.
-    gamma: [float] Discount factor.
-    target_update_freq: [float] Frequency to update the target network. You can either provide a
-      number representing a soft target update (see utils.py) or a
-      hard target update (see utils.py and Atari paper.)
-    num_burn_in: [int]  Before you begin updating the Q-network, your replay memory has
-      to be filled up with some number of samples. This number says
-      how many.
-    train_freq: [int]  How often you actually update your Q-Network. Sometimes
-      stability is improved if you collect a couple samples for your
-      replay memory, for every Q-network update that you run.
-    batch_size: [int] How many samples in each minibatch.
-    """
+    """Class implementing DQN.  """
     def __init__(self, args, num_actions):
         self.num_actions = num_actions
         input_shape = (args.frame_height, args.frame_width, args.num_frames)
@@ -66,30 +48,26 @@ class DQNAgent:
         self.load_network_path = args.load_network_path
         self.enable_ddqn = args.ddqn
         self.args = args
+        self.eval_freq = args.eval_freq
 
         self.h_size = 512
         self.tau = 0.001
 
         tf.reset_default_graph()
-        # We define the cells for the primary and target q-networks
+        # 1. define network
         cell = tf.contrib.rnn.BasicLSTMCell(num_units=self.h_size, state_is_tuple=True)
         cellT = tf.contrib.rnn.BasicLSTMCell(num_units=self.h_size, state_is_tuple=True)
-
         self.q_network = Qnetwork(args, h_size=self.h_size, num_frames=self.num_frames, num_actions=self.num_actions, rnn_cell_1=cell, myScope="QNet")
         self.target_network = Qnetwork(args, h_size=self.h_size, num_frames=self.num_frames, num_actions=self.num_actions, rnn_cell_1=cellT, myScope="TargetNet")
 
-        print(">>>> Net mode: Using double dqn: %s" % ( self.enable_ddqn))
-        self.eval_freq = args.eval_freq
-        #self.no_experience = args.no_experience
-        #self.no_target = args.no_target
-        #print(">>>> Target fixing: %s, Experience replay: %s" % (not self.no_target, not self.no_experience))
 
-        # initialize target network
+        # 2. tf.session
         init = tf.global_variables_initializer()
         self.saver = tf.train.Saver(max_to_keep=2) # the maximum number of recent checkpoint files to keep. As new files are created, older files are deleted
         trainables = tf.trainable_variables()
         print(trainables, len(trainables))
         self.targetOps = updateTargetGraph(trainables, self.tau) #update operation
+        self.writer = tf.summary.FileWriter(args.output, self.sess.graph)
 
         config = tf.ConfigProto() # set config for Session
         config.gpu_options.allow_growth = True
@@ -119,24 +97,8 @@ class DQNAgent:
 
     def select_action(self, state, is_training = True, **kwargs):
         """Select the action based on the current state.
-
-        You will probably want to vary your behavior here based on
-        which stage of training your in. For example, if you're still
-        collecting random samples you might want to use a
-        UniformRandomPolicy.
-
-        If you're testing, you might want to use a GreedyEpsilonPolicy
-        with a low epsilon.
-
-        If you're training, you might want to use the
-        LinearDecayGreedyEpsilonPolicy.
-
-        This would also be a good place to call
-        process_state_for_network in your preprocessor.
-
-        Returns
-        --------
-        selected action
+        Returns:
+            selected action
         """
         q_values = self.calc_q_values(state)
         if is_training:
@@ -150,19 +112,7 @@ class DQNAgent:
             return GreedyPolicy().select_action(q_values)
 
     def update_policy(self, current_sample = None):
-        """Update your policy.
-        Behavior may differ based on what stage of training your
-        in. If you're in training mode then you should check if you
-        should update your network parameters based on the current
-        step and the value you set for train_freq.
-
-        Inside, you'll want to sample a minibatch, calculate the
-        target values, update your network, and then update your
-        target values.
-
-        You might want to return the loss and other metrics as an
-        output. They can help you monitor how training is going.
-        """
+        """Update your policy."""
         batch_size = self.batch_size
         samples = self.memory.sample(batch_size)
         samples = self.atari_processor.process_batch(samples) #uint8 convert to float32.
@@ -188,9 +138,6 @@ class DQNAgent:
             next_qa_value = next_qa_value[range(batch_size), max_actions]
         else:
             next_qa_value = np.max(next_qa_value, axis = 1)
-        # print rewards.shape, mask.shape, next_qa_value.shape, batch_size
-        # DQN: y = r + gama * max(Q)
-        # double DQN: y = r + gama * Q(s, argmaxQ)
         target = rewards + self.gamma * mask * next_qa_value
 
         loss, _, rnn = self.sess.run([self.q_network.loss, self.q_network.updateModel, self.q_network.rnn], \
@@ -201,17 +148,6 @@ class DQNAgent:
 
     def fit(self, env, num_iterations, max_episode_length=None):
         """Fit your model to the provided environment (training process.).
-
-        Its a good idea to print out things like loss, average reward,
-        Q-values, etc to see if your agent is actually improving.
-
-        You should probably also periodically save your network
-        weights and any other useful info.
-
-        This is where you should sample actions from your network,
-        collect experience samples and add them to your replay memory,
-        and update your network parameters.
-
         Parameters
         ----------
         env: gym.Env
@@ -229,8 +165,9 @@ class DQNAgent:
         self.save_model(0)
         eval_count = 0
 
-        state, _ = env.reset()
-        print('test:', state)
+        state, _ = env.reset() # mobile robot
+        #state = env.reset() #testing: atari environment
+
         burn_in = True
         idx_episode = 1
         episode_loss = .0
@@ -238,8 +175,8 @@ class DQNAgent:
         episode_reward = .0
         episode_raw_reward = .0
         episode_target_value = .0
-        #for t in range(self.num_burn_in + num_iterations):
-        for t in range(5): #for testing
+        for t in range(self.num_burn_in + num_iterations):
+        #for t in range(5): #for testing
             action_state = self.history_processor.process_state_for_network(
                 self.atari_processor.process_state_for_network(state))
             policy_type = "UniformRandomPolicy" if burn_in else "LinearDecayGreedyEpsilonPolicy"
@@ -252,7 +189,7 @@ class DQNAgent:
             processed_next_state = self.atari_processor.process_state_for_network(state)
             action_next_state = np.dstack((action_state, processed_next_state))
             action_next_state = action_next_state[:, :, 1:] # delect the first state, then from 1 start.
-            print('Raw:', 'step =', t, 'action=', action, 'next_state=', tf.shape(processed_next_state))
+            #print('Raw:', 'step =', t, 'action=', action, 'next_state=', tf.shape(processed_next_state))
 
             processed_reward = self.atari_processor.process_reward(reward)
 
@@ -273,9 +210,9 @@ class DQNAgent:
 
                 if not burn_in: #True, here don't run at first.
                     avg_target_value = episode_target_value / episode_frames
-                    print(">>> Training (episode): time_step %d, episode %d, length_frames %d, reward %.0f, raw_reward %.0f, loss %.4f, target value %.4f, policy step %d, memory cap %d" %
+                    print(">>> Training (episode): time_step %d, episode %d, length_frames %d, reward %.0f, raw_reward %.0f, loss %.4f, target value %.4f, policy epsilon %.4f, memory cap %d" %
                         (t, idx_episode, episode_frames, episode_reward, episode_raw_reward, episode_loss,
-                        avg_target_value, self.policy.step, self.memory.current))
+                        avg_target_value, self.policy.epsilon, self.memory.current))
                     sys.stdout.flush()
                     save_scalar(idx_episode, 'train/episode_frames', episode_frames, self.writer)
                     save_scalar(idx_episode, 'train/episode_reward', episode_reward, self.writer)
@@ -339,16 +276,6 @@ class DQNAgent:
 
     def evaluate(self, env, num_episodes, eval_count, max_episode_length=None, monitor=True):
         """Test your agent with a provided environment.
-
-        You shouldn't update your network parameters here. Also if you
-        have any layers that vary in behavior between train/test time
-        (such as dropout or batch norm), you should set them to test.
-
-        Basically run your policy on the environment and collect stats
-        like cumulative reward, average episode length, etc.
-
-        You can also call the render function here if you want to
-        visually inspect your policy.
         """
         print("Evaluation starts.")
         plt.figure(1, figsize=(45, 20))
