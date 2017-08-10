@@ -60,14 +60,12 @@ class DQNAgent:
         self.q_network = Qnetwork(args, h_size=self.h_size, num_frames=self.num_frames, num_actions=self.num_actions, rnn_cell_1=cell, myScope="QNet")
         self.target_network = Qnetwork(args, h_size=self.h_size, num_frames=self.num_frames, num_actions=self.num_actions, rnn_cell_1=cellT, myScope="TargetNet")
 
-
         # 2. tf.session
         init = tf.global_variables_initializer()
         self.saver = tf.train.Saver(max_to_keep=2) # the maximum number of recent checkpoint files to keep. As new files are created, older files are deleted
         trainables = tf.trainable_variables()
         print(trainables, len(trainables))
         self.targetOps = updateTargetGraph(trainables, self.tau) #update operation
-        self.writer = tf.summary.FileWriter(args.output, self.sess.graph)
 
         config = tf.ConfigProto() # set config for Session
         config.gpu_options.allow_growth = True
@@ -75,7 +73,7 @@ class DQNAgent:
         self.sess = tf.Session(config=config)
         self.sess.run(init)
         updateTarget(self.targetOps, self.sess)
-        self.writer = tf.summary.FileWriter(self.output_path) # save to tensorboard
+        self.writer = tf.summary.FileWriter(self.output_path, self.sess.graph) # save to tensorboard
 
     def calc_q_values(self, state):
         """Given a state (or batch of states) calculate the Q-values.
@@ -178,7 +176,7 @@ class DQNAgent:
         for t in range(self.num_burn_in + num_iterations):
         #for t in range(5): #for testing
             action_state = self.history_processor.process_state_for_network(
-                self.atari_processor.process_state_for_network(state))
+                    self.atari_processor.process_state_for_network(state))
             policy_type = "UniformRandomPolicy" if burn_in else "LinearDecayGreedyEpsilonPolicy"
             action = self.select_action(action_state, is_training, policy_type = policy_type)
             processed_state = self.atari_processor.process_state_for_memory(state) #image convert to uint8.
@@ -192,7 +190,6 @@ class DQNAgent:
             #print('Raw:', 'step =', t, 'action=', action, 'next_state=', tf.shape(processed_next_state))
 
             processed_reward = self.atari_processor.process_reward(reward)
-
             self.memory.append(processed_state, action, processed_reward, done)
             #current_sample = Sample(action_state, action, processed_reward, action_next_state, done)
 

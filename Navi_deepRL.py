@@ -49,8 +49,8 @@ def main():
     print(args)
 
     # define mobile environment.
-    #env =  AgentMobile()
-    env = gym.make(args.env)
+    env =  AgentMobile()
+    #env = gym.make(args.env) # atari environment 
 
     # here is where you should start up a session,
     # create your DQN agent, create your model, etc.
